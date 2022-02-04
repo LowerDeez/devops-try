@@ -76,13 +76,14 @@ jobs:
     # Checkout the code as the first step. This is a dedicated CircleCI step.
     steps:
       - checkout
+#      First option to install deps:
 #      - load-backend-cache
 #      - install-backend-dependencies
 #      - save-backend-cache
-#      or: This option to install dependencies also work, but can't figure out how to save and restore cache
+#      Second option to install deps using orb circleci/python@1.5.0:
       - python/install-packages:
-          # Path to the directory containing your python project. Not needed if dependency file lives in the root.
           include-python-in-cache-key: false
+          # Path to the directory containing your python project. Not needed if dependency file lives in the root.
           app-dir: server
           pkg-manager: pipenv
       - run:
