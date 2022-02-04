@@ -8,7 +8,7 @@ createsuperuser:
 	docker-compose run --user 1000:1000 --rm backend python manage.py createsuperuser
 
 makemigrations:
-	docker-compose run --rm backend bash -c "python manage.py makemigrations $(app)"
+	docker-compose run --rm backend bash -c "python manage.py makemigrations $(app) && python manage.py migrate"
 
 migrate:
 	docker-compose run --user 1000:1000 --rm backend bash -c "python manage.py migrate $(app)"
@@ -25,6 +25,9 @@ create_templates:
 update_project:
 	docker-compose run --user 1000:1000 --rm backend bash -c "cd app/deploy && fab update_project"
 
+makemessages:
+	docker-compose run --rm backend bash -c "cd .. && python server/manage.py jsmakemessages -v3 -e jinja,py,html,js,vue -jse js,vue -i node_modules"
+
 update_transes:
 	docker-compose run --user 1000:1000 --rm backend bash -c "python manage.py update_translation_fields"
 
@@ -35,7 +38,7 @@ frontend_run:
 	docker-compose run --user 1000:1000 --rm frontend bash -c "$(cmd)"
 
 backend_manage:
-	docker-compose run --rm backend bash -c "python manage.py $(cmd)"
+	docker-compose run --user 1000:1000 --rm backend bash -c "python manage.py $(cmd)"
 
 backend_run:
 	docker-compose run --rm backend bash -c "$(cmd)"
@@ -43,3 +46,6 @@ backend_run:
 clean_all_dockers:
 	docker system prune
 	docker system prune -a
+
+run_tests:
+	docker-compose run --user 1000:1000 --rm backend bash -c "python manage.py migrate seo && pytest $(options)"

@@ -63,18 +63,26 @@ jobs:
             tar -xvf wkhtmltox-0.12.4_linux-generic-amd64.tar.xz
             sudo mv wkhtmltox/bin/wkhtmltopdf /usr/bin/wkhtmltopdf
             sudo mv wkhtmltox/bin/wkhtmltoimage /usr/bin/wkhtmltoimage
-#      - run:
-#          name: Ensure dist folder
-#          command: |
-#            mkdir -p ./client/dist/
       - run:
           name: Run tests
           command: |
-            . venv/bin/activate
-            cd molo
-            python3 manage.py collectstatic --noinput
+            . server/.venv/bin/activate
+            cd server
+            python manage.py collectstatic --noinput
             pytest -s -l --verbose --strict --no-migrations --junitxml=../tests_artifacts/test-results.xml $(circleci tests glob "server/**/tests.py" "server/**/test_*.py" "server/**/*_test.py" | circleci tests split --split-by=timings)
       - store_test_results:
           path: ./tests_artifacts
       - store_artifacts:
           path: ./tests_artifacts
+
+workflows:
+  version: 2
+
+  release-flow:
+    jobs:
+      - build-and-test:
+          filters:
+            branches:
+              only:
+                - /release\/.*/
+                - main

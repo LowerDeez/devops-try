@@ -41,7 +41,8 @@ FILE_CHARSET = 'utf-8'
 PROJECT_APPS = [
     'markup',
     'shared',
-    
+
+    'apps.core',
 ]
 
 INSTALLED_APPS = PROJECT_APPS + [
@@ -198,7 +199,7 @@ EMAIL_CONFIG = env.email_url('DJANGO_EMAIL_URL', 'consolemail://127.0.0.1')
 vars().update(EMAIL_CONFIG)
 
 
-REDIS_URL = env.str("DJANGO_REDIS_URL")
+REDIS_URL = env.str("DJANGO_REDIS_URL", default="redis://localhost:6379/1")
 CELERY_BROKER_URL = env.str('CELERY_BROKER_URL', default=REDIS_URL)
 
 GUNICORN_PID = env.str("GUNICORN_PID", "/tmp/devops_try.pid")
