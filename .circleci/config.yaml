@@ -1,0 +1,80 @@
+version: 2.1
+
+commands:
+  install-backend-dependencies:
+    description: Install be dependencies
+    steps:
+      - run:
+          name: Install Python dependencies
+          command: |
+            pip3 install pipenv
+#            change server to some env variable?
+#            use python version as env variable
+            export PIPENV_VENV_IN_PROJECT=True && cd server && pipenv --python 3.9
+            cd server && pipenv install --skip-lock
+#            python3 -m venv venv
+#            . venv/bin/activate
+#            pip3 install -r ./molo/requirements.txt
+
+  save-backend-cache:
+     description: Save Pip packages to cache.
+     steps:
+       - save_cache:
+           paths:
+             - ./venv
+           key: python-dependencies-{{ checksum "./server/Pipfile.lock" }}
+
+  load-backend-cache:
+    description: Load cached Pip packages.
+    steps:
+      - restore_cache:
+          keys:
+            - python-dependencies-{{ checksum "./server/Pipfile.lock" }}
+
+
+backend-container: &backend-container
+  docker:
+    - image: circleci/python:3.7.9
+      environment:
+        DJANGO_DB_URL: psql://postgres@127.0.0.1:5432/circle_test
+        DJANGO_SECRET_KEY: 01001-sekret-for-test-purposes
+        DJANGO_REDIS_URL: redis://localhost:6379/1
+    - image: circleci/postgres:10.4-alpine-ram
+      environment:
+        POSTGRES_DB: circle_test
+    - image: circleci/redis:4.0-alpine
+
+
+jobs:
+  backend-test:
+    <<: *backend-container
+    parallelism: 3
+    working_directory: ~/server/
+
+    steps:
+      - checkout
+      - load-backend-cache
+      - install-backend-dependencies
+      - save-backend-cache
+      - run:
+          name: Install wkhtmltopdf
+          command: |
+            wget https://github.com/wkhtmltopdf/wkhtmltopdf/releases/download/0.12.4/wkhtmltox-0.12.4_linux-generic-amd64.tar.xz
+            tar -xvf wkhtmltox-0.12.4_linux-generic-amd64.tar.xz
+            sudo mv wkhtmltox/bin/wkhtmltopdf /usr/bin/wkhtmltopdf
+            sudo mv wkhtmltox/bin/wkhtmltoimage /usr/bin/wkhtmltoimage
+#      - run:
+#          name: Ensure dist folder
+#          command: |
+#            mkdir -p ./client/dist/
+      - run:
+          name: Run tests
+          command: |
+            . venv/bin/activate
+            cd molo
+            python3 manage.py collectstatic --noinput
+            pytest -s -l --verbose --strict --no-migrations --junitxml=../tests_artifacts/test-results.xml $(circleci tests glob "server/**/tests.py" "server/**/test_*.py" "server/**/*_test.py" | circleci tests split --split-by=timings)
+      - store_test_results:
+          path: ./tests_artifacts
+      - store_artifacts:
+          path: ./tests_artifacts
