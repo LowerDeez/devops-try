@@ -77,7 +77,7 @@ jobs:
 #      or:
       - python/install-packages:
           # Path to the directory containing your python project. Not needed if dependency file lives in the root.
-          app-dir: ~/server/
+          app-dir: ~/server
           pkg-manager: pipenv
       - run:
           name: Install wkhtmltopdf
