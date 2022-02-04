@@ -94,6 +94,31 @@ jobs:
             sudo mv wkhtmltox/bin/wkhtmltopdf /usr/bin/wkhtmltopdf
             sudo mv wkhtmltox/bin/wkhtmltoimage /usr/bin/wkhtmltoimage
       - run:
+          name: Run pylama check
+          command: |
+            cd server
+            pipenv run pylama apps
+      - run:
+          name: Run black check
+          command: |
+            cd server
+            pipenv run black --check .
+      - run:
+          name: Run isort check
+          command: |
+            cd server
+            pipenv run isort --check-only
+      - run:
+          name: Run Django migration test
+          command: |
+            cd server
+            pipenv run python manage.py makemigrations --check --dry-run
+      - run:
+          name: Lint migrations
+          command: |
+            cd server
+            pipenv run python manage.py lintmigrations
+      - run:
           name: Run tests
           command: |
             cd server

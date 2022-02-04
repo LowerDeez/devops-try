@@ -49,6 +49,7 @@ INSTALLED_APPS = PROJECT_APPS + [
     'rosetta',
 
     'django_jinja',
+    "django_migration_linter",
 
     'django.contrib.admin',
     'django.contrib.auth',
