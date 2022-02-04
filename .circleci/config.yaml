@@ -1,5 +1,12 @@
 version: 2.1
 
+orbs:
+  # The python orb contains a set of prepackaged CircleCI configuration you can use repeatedly in your configuration files
+  # Orb commands and jobs help you with common scripting around a language/tool
+  # so you dont have to copy and paste it everywhere.
+  # See the orb documentation here: https://circleci.com/developer/orbs/orb/circleci/python
+  python: circleci/python@1.5.0
+
 commands:
   install-backend-dependencies:
     description: Install be dependencies
@@ -8,13 +15,8 @@ commands:
           name: Install Python dependencies
           command: |
             pip3 install pipenv
-#            change server to some env variable?
-#            use python version as env variable
             export PIPENV_VENV_IN_PROJECT=True && cd server && pipenv --python 3.9
             cd server && pipenv install --skip-lock
-#            python3 -m venv venv
-#            . venv/bin/activate
-#            pip3 install -r ./molo/requirements.txt
 
   save-backend-cache:
      description: Save Pip packages to cache.
@@ -45,10 +47,17 @@ commands:
 #    - image: circleci/redis:4.0-alpine
 
 
+# Define a job to be invoked later in a workflow.
+# See: https://circleci.com/docs/2.0/configuration-reference/#jobs
 jobs:
-  build-and-test:
+  build-and-test: # This is the name of the job, feel free to change it to better match what you're trying to do!
+    # These next lines defines a Docker executors: https://circleci.com/docs/2.0/executor-types/
+    # You can specify an image from Dockerhub or use one of the convenience images from CircleCI's Developer Hub
+    # A list of available CircleCI Docker convenience images are available here: https://circleci.com/developer/images/image/cimg/python
+    # The executor is the environment in which the steps below will be executed - below will use a python 3.9 container
+    # Change the version below to your required version of python
     docker:
-      - image: circleci/python:3.7.9
+      - image: circleci/python:3.9
         environment:
           DJANGO_DB_URL: psql://postgres@127.0.0.1:5432/circle_test
           DJANGO_SECRET_KEY: 01001-sekret-for-test-purposes
@@ -59,12 +68,17 @@ jobs:
       - image: circleci/redis:4.0-alpine
     parallelism: 3
     working_directory: ~/server/
-
+    # Checkout the code as the first step. This is a dedicated CircleCI step.
     steps:
       - checkout
-      - load-backend-cache
-      - install-backend-dependencies
-      - save-backend-cache
+#      - load-backend-cache
+#      - install-backend-dependencies
+#      - save-backend-cache
+#      or:
+      - python/install-packages:
+          # Path to the directory containing your python project. Not needed if dependency file lives in the root.
+          app-dir: ~/server
+          pkg-manager: pipenv
       - run:
           name: Install wkhtmltopdf
           command: |
@@ -75,18 +89,17 @@ jobs:
       - run:
           name: Run tests
           command: |
-            . server/.venv/bin/activate
             cd server
-            python manage.py collectstatic --noinput
-            pytest -s -l --verbose --strict --no-migrations --junitxml=../tests_artifacts/test-results.xml $(circleci tests glob "server/**/tests.py" "server/**/test_*.py" "server/**/*_test.py" | circleci tests split --split-by=timings)
+            pipenv run python manage.py collectstatic --noinput
+            pipenv run pytest -s -l --verbose --strict --no-migrations --junitxml=../tests_artifacts/test-results.xml $(circleci tests glob "server/**/tests.py" "server/**/test_*.py" "server/**/*_test.py" | circleci tests split --split-by=timings)
       - store_test_results:
           path: ./tests_artifacts
       - store_artifacts:
           path: ./tests_artifacts
 
+# Invoke jobs via workflows
+# See: https://circleci.com/docs/2.0/configuration-reference/#workflows
 workflows:
-  version: 2
-
   release-flow:
     jobs:
       - build-and-test:
