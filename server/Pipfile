@@ -23,7 +23,7 @@ autopep8 = "*"
 pillow = "*"
 psycopg2-binary = ">=2.8, <2.9"
 jinja2 = "*"
-Django = ">=3.0.0, <3.1"
+Django = "==3.2"
 unidecode = "*"
 celery = "*"
 django-jinja = "*"
@@ -35,7 +35,7 @@ django-composable-views = {git = "https://gitlab.com/preusx/django-composable-vi
 django-environ = "*"
 gunicorn = {version = "*", sys_platform = "== 'linux'"}
 gevent = {version = "*", sys_platform = "== 'linux'"}
-django-webpack-loader = { git = "https://github.com/Katerinka28/django-webpack-loader/" }
+django-webpack-loader = {git = "https://github.com/Katerinka28/django-webpack-loader"}
 djangorestframework = "*"
 djangorestframework-camel-case = "*"
 drf-orjson-renderer = "*"

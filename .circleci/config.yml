@@ -16,14 +16,14 @@ commands:
           command: |
             pip3 install pipenv
             export PIPENV_VENV_IN_PROJECT=True && cd server && pipenv --python 3.9
-            cd server && pipenv install --skip-lock
+            pipenv install --skip-lock
 
   save-backend-cache:
      description: Save Pip packages to cache.
      steps:
        - save_cache:
            paths:
-             - ./venv
+             - ./server/.venv
            key: python-dependencies-{{ checksum "./server/Pipfile.lock" }}
 
   load-backend-cache:
@@ -51,6 +51,8 @@ commands:
 # See: https://circleci.com/docs/2.0/configuration-reference/#jobs
 jobs:
   build-and-test: # This is the name of the job, feel free to change it to better match what you're trying to do!
+#    <<: *backend-container  --> option to inherit
+
     # These next lines defines a Docker executors: https://circleci.com/docs/2.0/executor-types/
     # You can specify an image from Dockerhub or use one of the convenience images from CircleCI's Developer Hub
     # A list of available CircleCI Docker convenience images are available here: https://circleci.com/developer/images/image/cimg/python
@@ -66,18 +68,22 @@ jobs:
         environment:
           POSTGRES_DB: circle_test
       - image: circleci/redis:4.0-alpine
+
     parallelism: 3
-    working_directory: ~/server/
+    # set working directory
+#    working_directory: ~/server
+
     # Checkout the code as the first step. This is a dedicated CircleCI step.
     steps:
       - checkout
 #      - load-backend-cache
 #      - install-backend-dependencies
 #      - save-backend-cache
-#      or:
+#      or: This option to install dependencies also work, but can't figure out how to save and restore cache
       - python/install-packages:
           # Path to the directory containing your python project. Not needed if dependency file lives in the root.
-          app-dir: ~/server
+          include-python-in-cache-key: false
+          app-dir: server
           pkg-manager: pipenv
       - run:
           name: Install wkhtmltopdf
@@ -91,7 +97,7 @@ jobs:
           command: |
             cd server
             pipenv run python manage.py collectstatic --noinput
-            pipenv run pytest -s -l --verbose --strict --no-migrations --junitxml=../tests_artifacts/test-results.xml $(circleci tests glob "server/**/tests.py" "server/**/test_*.py" "server/**/*_test.py" | circleci tests split --split-by=timings)
+            pipenv run pytest
       - store_test_results:
           path: ./tests_artifacts
       - store_artifacts:
