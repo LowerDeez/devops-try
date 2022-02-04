@@ -77,7 +77,7 @@ jobs:
 #      or:
       - python/install-packages:
           # Path to the directory containing your python project. Not needed if dependency file lives in the root.
-          app-dir: ~/server/
+          app-dir: ~/server
           pkg-manager: pipenv
       - run:
           name: Install wkhtmltopdf
@@ -91,7 +91,7 @@ jobs:
           command: |
             cd server
             pipenv run python manage.py collectstatic --noinput
-            pipenv run pytest
+            pipenv run pytest -s -l --verbose --strict --no-migrations --junitxml=../tests_artifacts/test-results.xml $(circleci tests glob "server/**/tests.py" "server/**/test_*.py" "server/**/*_test.py" | circleci tests split --split-by=timings)
       - store_test_results:
           path: ./tests_artifacts
       - store_artifacts:
