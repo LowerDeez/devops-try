@@ -69,7 +69,7 @@ jobs:
           POSTGRES_DB: circle_test
       - image: circleci/redis:4.0-alpine
 
-    parallelism: 3
+    parallelism: 6
     # set working directory
 #    working_directory: ~/server
 

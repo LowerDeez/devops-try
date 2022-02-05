@@ -21,4 +21,4 @@ CircleCI
 
 2. ``config.yml`` - `First working version with comments <https://github.com/LowerDeez/devops-try/blob/7bd2928acd0e23438e7816e846690f00f444e381/.circleci/config.yml>`_
 3. ``config.yml`` - `Add some code style checks (black, pylama, isort, migrations linter) <https://github.com/LowerDeez/devops-try/commit/8ed4e02a81c5302bcffb726b7baf0d8bd1d2d5eb>`_
-4. TODO: add invoke tasks to update code style
+4. `Add invoke tasks to update code style <https://github.com/LowerDeez/devops-try/commit/0c20d8161beb7731d12d2a32217fd5bb2b23d724>`_.
