@@ -117,7 +117,7 @@ jobs:
           name: Lint migrations
           command: |
             cd server
-            pipenv run python manage.py lintmigrations
+            pipenv run python manage.py lintmigrations --unapplied-migrations
       - run:
           name: Run tests
           command: |

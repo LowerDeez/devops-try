@@ -19,5 +19,5 @@ exclude = '''
 '''
 
 [tool.django_migration_linter]
-exclude_apps = ["oauth2_provider", "reversion"]
+exclude_apps = ["oauth2_provider", "reversion", "sites"]
 ignore_name_contains = "initial"
