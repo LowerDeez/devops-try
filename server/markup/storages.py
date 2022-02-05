@@ -1,6 +1,5 @@
 import os
-
-from urllib.parse import urlsplit, unquote, urlunsplit
+from urllib.parse import unquote, urlsplit, urlunsplit
 
 from django.contrib.staticfiles.storage import ManifestStaticFilesStorage
 
@@ -33,12 +32,11 @@ class DjsManifestStaticFilesStorage(ManifestStaticFilesStorage):
         root, ext = os.path.splitext(filename)
         if file_hash is not None:
             file_hash = ".%s" % file_hash
-        hashed_name = os.path.join(path, "%s%s%s" %
-                                   (root, file_hash, ext))
+        hashed_name = os.path.join(path, "%s%s%s" % (root, file_hash, ext))
         unparsed_name = list(parsed_name)
         unparsed_name[2] = hashed_name
         # Special casing for a @font-face hack, like url(myfont.eot?#iefix")
         # http://www.fontspring.com/blog/the-new-bulletproof-font-face-syntax
-        if '?#' in name and not unparsed_name[3]:
-            unparsed_name[2] += '?'
+        if "?#" in name and not unparsed_name[3]:
+            unparsed_name[2] += "?"
         return urlunsplit(unparsed_name)

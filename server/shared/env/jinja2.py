@@ -5,7 +5,7 @@ def environment(**options):
     """
     Provdes default environvent for jinja.
     """
-    options['cache_size'] = 0
+    options["cache_size"] = 0
 
     env = Environment(**options)
 
