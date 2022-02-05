@@ -1,0 +1,4 @@
+---
+nginx_static_dir: "{{ project_path }}/{{ project_user }}/static/"
+nginx_uploads_dir: "{{ project_path }}/{{ project_user }}/uploads/"
+project_sockets_path: "/run/{{ application_name }}"

@@ -1,0 +1,31 @@
+---
+
+server_user: root
+
+git_repo: git@github.com:LowerDeez/devops-try.git
+
+secret_key: ucxm5+0@&o69vx!%dp5h+yt&)dr*%wy(&5y3qepms7a$^u*o42
+
+core_host: devops-try.com
+
+home_dir: /home
+
+project_user: devops-try
+project_group: "{{ project_user }}"
+
+application_name: "{{ project_user }}_project"
+
+timeout: 300  # common timeout for app nginx etc.
+
+# Celery. Vars used in few roles (celery and web)
+celery_runner_name: celery-runner
+celery_beat_runner_name: celery-beat-runner
+
+# Web application
+project_home: "{{ home_dir }}/{{ project_user }}/{{ application_name }}"
+project_src: "{{ project_home }}/src"
+project_path: "{{ project_src }}/{{ project_user }}"
+project_log_dir: "{{ project_home }}/logs"
+
+bind_host: 127.0.0.1
+bind_port: 8000

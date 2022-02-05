@@ -1,0 +1,7 @@
+wkhtmltopdf_dependencies:
+  - build-essential
+  - git
+  - curl
+  - xvfb
+  - libxrender1
+  - fontconfig

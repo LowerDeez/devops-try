@@ -2,10 +2,14 @@ from django.conf import settings
 from django.conf.urls import include, url
 from django.contrib import admin
 from django.contrib.staticfiles.urls import static
+from django.urls import path
+
+from apps.core.views import image_upload
 
 urlpatterns = [
     url(r"^admin/", admin.site.urls),
     # url(r'', include('apps.frontend.urls')),
+    path("", image_upload, name="upload"),
 ]
 
 if "rosetta" in settings.INSTALLED_APPS:

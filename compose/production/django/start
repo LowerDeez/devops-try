@@ -1,0 +1,18 @@
+#!/bin/bash
+
+#set -o errexit
+#set -o pipefail
+#set -o nounset
+set -e
+
+ls -la /code/server/app
+
+whoami
+
+cd server
+
+#python manage.py collectstatic --noinput
+
+python manage.py migrate
+
+/usr/local/bin/gunicorn app.wsgi --bind 0.0.0.0:8000
