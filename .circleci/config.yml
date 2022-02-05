@@ -107,7 +107,7 @@ jobs:
           name: Run isort check
           command: |
             cd server
-            pipenv run isort --check-only
+            pipenv run isort . --check-only
       - run:
           name: Run Django migration test
           command: |
