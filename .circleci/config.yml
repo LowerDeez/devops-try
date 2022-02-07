@@ -33,6 +33,30 @@ commands:
           keys:
             - python-dependencies-{{ checksum "./server/Pipfile.lock" }}
 
+  build-image:
+    description: Build a docker image
+    parameters:
+      tag:
+        type: env_var_name
+      compose_conf:
+        description: Generate and store compose config to artifacts
+        type: boolean
+        default: false
+    steps:
+      - run:
+          name: Build an image
+          # launch a script to create ./.server/.env file to use in production.yml, it passes postgres variables with AWS data to connect to RDS
+          command: |
+            chmod +x ./setup_env.sh
+            bash ./setup_env.sh
+            docker-compose -f production.yml build
+      - run:
+          name: Push image
+          command: |
+            . venv/bin/activate
+            eval $(aws ecr get-login --region $AWS_DEFAULT_REGION --no-include-email)
+            docker-compose -f production.yml push django nginx
+
 
 #backend-container: &backend-container
 #  docker:
@@ -130,12 +154,45 @@ jobs:
       - store_artifacts:
           path: ./tests_artifacts
 
+  create-docker-image:
+    docker:
+      # Docker/docker-compose depends on circleci/python version
+      - image: circleci/python:3.9
+
+    steps:
+      - checkout
+      - setup_remote_docker:
+          version: 18.06.0-ce
+          docker_layer_caching: true
+      - run:
+          name: Set environment variables
+          command: |
+            echo 'export HUB_HOST="${AWS_ACCOUNT_ID}.dkr.ecr.${AWS_DEFAULT_REGION}.amazonaws.com"' >> $BASH_ENV
+      - run:
+          name: Install awscli
+          # didn't work with pipenv
+          command: |
+            python3 -m venv venv
+            . venv/bin/activate
+            pip install awscli
+      - build-image:
+          tag: CIRCLE_BRANCH
+          compose_conf: true
+
 # Invoke jobs via workflows
 # See: https://circleci.com/docs/2.0/configuration-reference/#workflows
 workflows:
   release-flow:
     jobs:
       - build-and-test:
+          filters:
+            branches:
+              only:
+                - /release\/.*/
+                - main
+      - create-docker-image:
+#          requires:
+#            - build-and-test
           filters:
             branches:
               only:
