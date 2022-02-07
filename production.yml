@@ -8,13 +8,14 @@ services:
     volumes:
       - static_volume:/code/server/app/static
       - uploads_volume:/code/server/app/uploads
-    image: devops_try_production_django
+    image: 177314787006.dkr.ecr.us-east-1.amazonaws.com/django-ec2:django
     depends_on:
-      - postgres
+#      - postgres
       - redis
     env_file:
       - ./.envs/.production/.django
       - ./.envs/.production/.postgres
+      - ./server/.env
     command: /start
 #    command: >
 #      bash -c "cd server && python manage.py migrate
@@ -24,16 +25,16 @@ services:
 #    networks:
 #      devops_try_portal_network:
 
-  postgres:
-    build:
-      context: .
-      dockerfile: ./compose/production/postgres/Dockerfile
-    image: devops_try_production_postgres
-    volumes:
-      - production_postgres_data:/var/lib/postgresql/data #:Z
-      - production_postgres_data_backups:/backups #:z
-    env_file:
-      - ./.envs/.production/.postgres
+#  postgres:
+#    build:
+#      context: .
+#      dockerfile: ./compose/production/postgres/Dockerfile
+#    image: devops_try_production_postgres
+#    volumes:
+#      - production_postgres_data:/var/lib/postgresql/data #:Z
+#      - production_postgres_data_backups:/backups #:z
+#    env_file:
+#      - ./.envs/.production/.postgres
 #    networks:
 #      devops_try_portal_network:
 
@@ -54,6 +55,7 @@ services:
   nginx:
     build: ./compose/production/nginx
 #    restart: always
+    image: 177314787006.dkr.ecr.us-east-1.amazonaws.com/django-ec2:nginx
     volumes:
       - static_volume:/code/server/app/static
       - uploads_volume:/code/server/app/uploads
@@ -103,9 +105,9 @@ services:
 
 
 volumes:
-  production_postgres_data:
-  production_postgres_data_backups:
-  production_traefik:
+#  production_postgres_data:
+#  production_postgres_data_backups:
+#  production_traefik:
   static_volume:
   uploads_volume:
 

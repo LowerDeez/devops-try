@@ -64,6 +64,7 @@ jobs:
           DJANGO_DB_URL: psql://postgres@127.0.0.1:5432/circle_test
           DJANGO_SECRET_KEY: 01001-sekret-for-test-purposes
           DJANGO_REDIS_URL: redis://localhost:6379/1
+          DJANGO_ALLOWED_HOSTS: localhost 127.0.0.1 0.0.0.0
       - image: circleci/postgres:10.4-alpine-ram
         environment:
           POSTGRES_DB: circle_test

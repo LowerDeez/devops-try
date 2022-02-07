@@ -71,3 +71,5 @@ pip-log.txt
 server/app/settings/local.py
 server/celerybeat-schedule
 
+
+aws/
