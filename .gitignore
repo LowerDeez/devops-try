@@ -73,3 +73,5 @@ server/celerybeat-schedule
 
 
 aws/
+
+\.envs/\.production/\.django

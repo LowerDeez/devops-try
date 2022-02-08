@@ -179,20 +179,46 @@ jobs:
           tag: CIRCLE_BRANCH
           compose_conf: true
 
+  auto-deploy:
+    docker:
+      - image: circleci/python:3.9
+
+    steps:
+      - checkout
+      - python/install-packages:
+          include-python-in-cache-key: false
+          # Path to the directory containing your python project. Not needed if dependency file lives in the root.
+          app-dir: server
+          pkg-manager: pipenv
+      - run:
+          name: Deploy...
+          command: |
+            cd server
+            pipenv run inv docker.deploy
+#            ssh -o StrictHostKeyChecking=no $DEFAULT_USER@$EC2_PUBLIC_IP_ADDRESS "cd /home/ubuntu/devops_try"
+
 # Invoke jobs via workflows
 # See: https://circleci.com/docs/2.0/configuration-reference/#workflows
 workflows:
   release-flow:
     jobs:
-      - build-and-test:
-          filters:
-            branches:
-              only:
-                - /release\/.*/
-                - main
-      - create-docker-image:
+#      - build-and-test:
+#          filters:
+#            branches:
+#              only:
+#                - /release\/.*/
+#                - main
+#      - create-docker-image:
+##          requires:
+##            - build-and-test
+#          filters:
+#            branches:
+#              only:
+#                - /release\/.*/
+#                - main
+      - auto-deploy:
 #          requires:
-#            - build-and-test
+#            - create-docker-image
           filters:
             branches:
               only:
