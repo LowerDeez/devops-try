@@ -193,6 +193,8 @@ jobs:
       - run:
           name: Deploy...
           command: |
+            chmod +x ./setup_env.sh
+            bash ./setup_env.sh
             cd server
             pipenv run inv docker.deploy
 #            ssh -o StrictHostKeyChecking=no $DEFAULT_USER@$EC2_PUBLIC_IP_ADDRESS "cd /home/ubuntu/devops_try"

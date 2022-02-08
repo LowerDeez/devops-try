@@ -13,7 +13,8 @@ AWS_ACCOUNT_ID = os.environ["AWS_ACCOUNT_ID"]
 AWS_SECRET_ACCESS_KEY = os.environ["AWS_SECRET_ACCESS_KEY"]
 AWS_ECR_ACCOUNT_URL = os.environ["AWS_ECR_ACCOUNT_URL"]
 AWS_DEFAULT_REGION = os.environ["AWS_DEFAULT_REGION"]
-DOCKER_ROOT_FOLDER = "/home/ubuntu/devops_try"
+CIRCLECI_ROOT_FOLDER = "/home/circleci/project"
+PROJECT_ROOT_FOLDER = "/home/ubuntu/devops_try"
 
 
 def message(ctx, text, color=DI) -> None:
@@ -21,6 +22,7 @@ def message(ctx, text, color=DI) -> None:
 
 
 def command(ctx, text) -> None:
+    message(ctx, text)
     ctx.run(f"ssh -o StrictHostKeyChecking=no {DEFAULT_USER}@{EC2_PUBLIC_IP_ADDRESS} '{text}'", pty=True)
 
 
@@ -40,9 +42,18 @@ def login(ctx):
     command(ctx, f"{aws_login_command}")
 
 
-@task(pre=[login])
-def deploy(ctx):
-    result = ctx.run(
-        f"ssh -o StrictHostKeyChecking=no {DEFAULT_USER}@{EC2_PUBLIC_IP_ADDRESS} '" f"ls /home/'",
-        warn=True,
+@task(iterable=["molo_envs"], pre=[login])
+def deploy(ctx, molo_envs):
+    ctx.run("cd /home/circleci/project/.envs/.production/ && cat .django")
+    command(ctx, f"mkdir -p {PROJECT_ROOT_FOLDER}/.envs/.production/")
+    ctx.run(
+        f"scp {CIRCLECI_ROOT_FOLDER}/.envs/.production/.django "
+        f"{DEFAULT_USER}@{EC2_PUBLIC_IP_ADDRESS}:{PROJECT_ROOT_FOLDER}/.envs/.production/.django"
     )
+    ctx.run(f"scp {CIRCLECI_ROOT_FOLDER}/production.yml {DEFAULT_USER}@{EC2_PUBLIC_IP_ADDRESS}:{PROJECT_ROOT_FOLDER}")
+    command(ctx, f"cd {PROJECT_ROOT_FOLDER} && ls -la")
+    # command(ctx, "export $(cat ./.envs/.production/.django | xargs)")
+    command(ctx, f"cd {PROJECT_ROOT_FOLDER} && docker pull {AWS_ECR_ACCOUNT_URL}:django")
+    command(ctx, f"cd {PROJECT_ROOT_FOLDER} && docker pull {AWS_ECR_ACCOUNT_URL}:nginx")
+    command(ctx, f"cd {PROJECT_ROOT_FOLDER} && docker pull {AWS_ECR_ACCOUNT_URL}:celeryworker")
+    command(ctx, f"cd {PROJECT_ROOT_FOLDER} && docker-compose -f production.yml up -d")

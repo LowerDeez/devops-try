@@ -93,8 +93,8 @@ RUN chown -R django:django ${APP_HOME}
 
 RUN mkdir -p ${APP_HOME}/server/app/static && \
     mkdir -p ${APP_HOME}/server/app/uploads && \
-    chown -R django:django ${APP_HOME} # && \
-#    cd server && python manage.py collectstatic --noinput
+    chown -R django:django ${APP_HOME} && \
+    cd server && python manage.py collectstatic --noinput
 
 USER django
 

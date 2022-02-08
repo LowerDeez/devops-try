@@ -10,50 +10,20 @@ services:
       - uploads_volume:/code/server/app/uploads
     image: 177314787006.dkr.ecr.us-east-1.amazonaws.com/django-ec2:django
     depends_on:
-#      - postgres
       - redis
     env_file:
-#      - ./server/.env
       - ./.envs/.production/.django
-#      - ./.envs/.production/.postgres
     command: /start
 #    command: >
 #      bash -c "cd server && python manage.py migrate
 #      && gunicorn app.wsgi --bind 0.0.0.0:8000"
     expose:
       - 8000
-#    networks:
-#      devops_try_portal_network:
-
-#  postgres:
-#    build:
-#      context: .
-#      dockerfile: ./compose/production/postgres/Dockerfile
-#    image: devops_try_production_postgres
-#    volumes:
-#      - production_postgres_data:/var/lib/postgresql/data #:Z
-#      - production_postgres_data_backups:/backups #:z
-#    env_file:
-#      - ./.envs/.production/.postgres
-#    networks:
-#      devops_try_portal_network:
-
-#  traefik:
-#    build:
-#      context: .
-#      dockerfile: ./compose/production/traefik/Dockerfile
-#    image: devops_try_production_traefik
-#    depends_on:
-#      - django
-#    volumes:
-#      - production_traefik:/etc/traefik/acme:z
-#    ports:
-#      - "0.0.0.0:80:80"
-#      - "0.0.0.0:443:443"
-#      - "0.0.0.0:5555:5555"
 
   nginx:
-    build: ./compose/production/nginx
+    build:
+      context: .
+      dockerfile: ./compose/production/nginx/Dockerfile
 #    restart: always
     image: 177314787006.dkr.ecr.us-east-1.amazonaws.com/django-ec2:nginx
     volumes:
@@ -66,50 +36,19 @@ services:
       - django
     env_file:
       - ./.envs/.production/.django
-      - ./.envs/.production/.postgres
-#    networks:
-#      devops_try_portal_network:
 
   redis:
     image: redis:6
-#    networks:
-#      devops_try_portal_network:
 
   celeryworker:
     <<: *django
-    image: devops_try_production_celeryworker
+    image: 177314787006.dkr.ecr.us-east-1.amazonaws.com/django-ec2:celeryworker
     command: bash -c "celery -A server.app worker -l INFO -B"
     depends_on:
       - django
-#    networks:
-#      devops_try_portal_network:
-
-#  celerybeat:
-#    <<: *django
-#    image: devops_try_production_celerybeat
-#    command: /start-celerybeat
-#
-#  flower:
-#    <<: *django
-#    image: devops_try_production_flower
-#    command: /start-flower
-#
-#  awscli:
-#    build:
-#      context: .
-#      dockerfile: ./compose/production/aws/Dockerfile
-#    env_file:
-#      - ./.envs/.production/.django
-#    volumes:
-#      - production_postgres_data_backups:/backups:z
 
 
 volumes:
-#  production_postgres_data:
-#  production_postgres_data_backups:
-#  production_traefik:
   static_volume:
   uploads_volume:
 
-#networks:
-#  devops_try_portal_network:

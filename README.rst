@@ -110,7 +110,7 @@ CircleCI
     DJANGO_ALLOWED_HOSTS	xxxxp.ua
 11. `Update production.yml (remove db section) <https://github.com/LowerDeez/devops-try/commit/87604de7b4f3462cd731f4a6fbe24d42e4886358>`_
 12. `Add yml config to build and push docker image <https://github.com/LowerDeez/devops-try/commit/0abac48f23d6dcd17c870456e35699f0acf37651>`_
-13. `Add yml config to deploy <>`_
+13. `Add yml config to deploy and task to login to aws in CLI <https://github.com/LowerDeez/devops-try/commit/65b124050ce8e1b4e9b2ba8e9f473a338bc11f26>`_
     13.1 Move env file to ./envs/.production/
     13.2 Added invoke tasks to deploy
     13.3 Skip collect static in Dockerfile
@@ -141,3 +141,6 @@ CircleCI
         cat ~/.ssh/django-devops-try.pem - copy (key pair from AWS)
         Add to CircleCI to SSH Keys
         ``DEFAULT_USER`` = ubuntu
+15. `Update deploy task with images pull and up <https://github.com/LowerDeez/devops-try/commit/8ee8b68f675c7bec5a8aee529a53a4e1cb4d2451>`_
+    15.1 Fixed nginx section in production.yml
+    P.S. Don't forget to push build after changes
